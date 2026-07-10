@@ -16,6 +16,8 @@ function App() {
     isMappingKey: keyboardMap.isMappingKey,
     getTargetKeymap: keyboardMap.getTargetKeymap,
     getSourceKeymap: keyboardMap.getSourceKeymap,
+    sourceLayout: keyboardMap.sourceLayout,
+    targetLayout: keyboardMap.targetLayout,
   });
 
   return (

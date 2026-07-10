@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { FaEdit, FaFileExport } from 'react-icons/fa';
 import './index.css';
 import KeyboardKeys from '../../components/KeyboardKeys';
+import ExportSidePanel from '../../components/Configure/ExportSidePanel';
 import ConfirmDiscardCustomModal from '../../components/ConfirmDiscardCustomModal';
 import {
   CUSTOM_LAYOUT_ID,
@@ -55,6 +56,7 @@ const KeyboardConfigScreen = () => {
           Export layout
         </button>
       </div>
+
       <div className="keyboard_config_screen_layouts">
         <div className="keyboard_config_screen_column">
           <span className="keyboard_config_screen_label">
@@ -112,17 +114,29 @@ const KeyboardConfigScreen = () => {
           </label>
         </div>
       </div>
-      <p className="keyboard_config_screen_hint">
-        Type on your keyboard to see which target keys light up.
-      </p>
-      <KeyboardKeys />
-      <button
-        type="button"
-        className="wizard_button"
-        onClick={() => goToTyper(KEYBOARD_CONFIG_SCREEN)}
-      >
-        Try it out
-      </button>
+
+      <div className="keyboard_config_screen_body">
+        <div className="keyboard_config_screen_main">
+          <p className="keyboard_config_screen_hint">
+            Type on your keyboard to see which target keys light up.
+          </p>
+          <KeyboardKeys />
+          <button
+            type="button"
+            className="wizard_button"
+            onClick={() => goToTyper(KEYBOARD_CONFIG_SCREEN)}
+          >
+            Try it out
+          </button>
+        </div>
+
+        {!isEditingKeymap && (
+          <aside className="keyboard_config_screen_side">
+            <ExportSidePanel />
+          </aside>
+        )}
+      </div>
+
       <ConfirmDiscardCustomModal
         isOpen={isDiscardConfirmOpen}
         onConfirm={confirmDiscardCustomChanges}

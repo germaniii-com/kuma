@@ -1,8 +1,12 @@
 import {
   DETECT_LAYOUT_SCREEN,
   KEYBOARD_CONFIG_SCREEN,
+  STEP_DETECT,
+  STEP_CONFIG,
+  STEP_TEST,
   TYPER_SCREEN,
   TYPER_SUMMARY_SCREEN,
+  screenToStep,
 } from '../constants/screen';
 import { MOVIE_QUOTES } from '../constants/quotes';
 import { IGNORED_KEYS } from '../constants/keys';
@@ -10,7 +14,7 @@ import {
   getKeyIndexFromCode,
   getTargetCharFromPhysicalKey,
 } from '../utils/translatePhysicalKey';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 const getRandomQuote = () =>
   MOVIE_QUOTES[Math.floor(Math.random() * 10) % MOVIE_QUOTES.length];
@@ -19,6 +23,8 @@ const useKeyboard = ({
   isMappingKey = false,
   getTargetKeymap,
   getSourceKeymap,
+  sourceLayout,
+  targetLayout,
 }) => {
   const [screen, setScreen] = useState(DETECT_LAYOUT_SCREEN);
   const [typerReturnScreen, setTyperReturnScreen] = useState(
@@ -56,6 +62,16 @@ const useKeyboard = ({
     [clearHighlight]
   );
 
+  const currentStep = useMemo(() => screenToStep(screen), [screen]);
+
+  const completedSteps = useMemo(() => {
+    const steps = [];
+    if (sourceLayout) steps.push(STEP_DETECT);
+    if (targetLayout) steps.push(STEP_CONFIG);
+    if (screen === TYPER_SUMMARY_SCREEN) steps.push(STEP_TEST);
+    return steps;
+  }, [sourceLayout, targetLayout, screen]);
+
   const resetTyperState = useCallback(() => {
     setKey('');
     setTimestamps([]);
@@ -78,6 +94,26 @@ const useKeyboard = ({
     clearHighlight();
     setScreen(typerReturnScreen);
   }, [typerReturnScreen, clearHighlight]);
+
+  const goToStep = useCallback(
+    (step) => {
+      if (step === currentStep) return;
+      if (step === STEP_DETECT) {
+        resetTyperState();
+        setScreen(DETECT_LAYOUT_SCREEN);
+        return;
+      }
+      if (step === STEP_CONFIG) {
+        resetTyperState();
+        setScreen(KEYBOARD_CONFIG_SCREEN);
+        return;
+      }
+      if (step === STEP_TEST) {
+        goToTyper(KEYBOARD_CONFIG_SCREEN);
+      }
+    },
+    [currentStep, resetTyperState, goToTyper]
+  );
 
   useEffect(() => {
     return () => {
@@ -182,6 +218,9 @@ const useKeyboard = ({
   return {
     screen,
     setScreen,
+    currentStep,
+    completedSteps,
+    goToStep,
     key,
     quote,
     timestamps,

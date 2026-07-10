@@ -130,3 +130,40 @@
   font-size: 0.85rem;
   margin: 0;
 }
+
+.keyboard_config_screen_body {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-xl);
+  width: 100%;
+  align-items: flex-start;
+}
+
+.keyboard_config_screen_main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.keyboard_config_screen_side {
+  flex: 0 0 260px;
+  min-width: 200px;
+  position: sticky;
+  top: var(--space-md);
+}
+
+@media (max-width: 900px) {
+  .keyboard_config_screen_body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .keyboard_config_screen_side {
+    flex: none;
+    width: 100%;
+    position: static;
+  }
+}

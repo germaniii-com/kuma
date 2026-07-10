@@ -1,19 +1,17 @@
 #root {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   text-align: center;
-  max-width: 90vw; /* Adjust this based on your content */
+  width: 100%;
+  max-width: 90vw;
+  height: 100vh;
   max-height: 90vh;
-  padding: 2rem;
+  padding: 1.5rem;
   box-sizing: border-box;
-  user-select: none; /* Non-prefixed version, currently
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  -moz-user-select: none; /* Old versions of Firefox */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -webkit-user-select: none; /* Safari */
-  -webkit-touch-callout: none; /* iOS Safari */
+  gap: var(--space-md);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .logo {

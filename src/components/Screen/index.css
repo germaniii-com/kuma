@@ -1,9 +1,19 @@
 .base-screen {
   width: 100%;
-  height: 100%;
-
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+}
+
+.base-screen::before {
+  content: '';
+  flex: 1;
+}
+
+.base-screen::after {
+  content: '';
+  flex: 1;
 }
