@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { FaEdit, FaFileExport } from 'react-icons/fa';
 import './index.css';
 import KeyboardKeys from '../../components/KeyboardKeys';
-import ExportSidePanel from '../../components/Configure/ExportSidePanel';
 import ConfirmDiscardCustomModal from '../../components/ConfirmDiscardCustomModal';
 import {
   CUSTOM_LAYOUT_ID,
@@ -44,30 +43,20 @@ const KeyboardConfigScreen = () => {
 
   return (
     <div className="keyboard_config_screen">
-      <div className="keyboard_config_screen_header">
-        <h2>Keyboard layout</h2>
-        <button
-          type="button"
-          className="keyboard_config_screen_export"
-          title="Export layout"
-          onClick={openExportModal}
-        >
-          <FaFileExport aria-hidden />
-          Export layout
-        </button>
-      </div>
-
       <div className="keyboard_config_screen_layouts">
         <div className="keyboard_config_screen_column">
           <span className="keyboard_config_screen_label">
-            Your current layout:
+            Current Layout
           </span>
           <strong className="keyboard_config_screen_value">{sourceLabel}</strong>
         </div>
+
+        <span className="keyboard_config_screen_arrow" aria-hidden>→</span>
+
         <div className="keyboard_config_screen_column">
           <label className="keyboard_config_screen_field">
             <span className="keyboard_config_screen_label">
-              Select a layout:
+              Target Layout
             </span>
             <div className="keyboard_config_screen_target_row">
               <select
@@ -115,26 +104,27 @@ const KeyboardConfigScreen = () => {
         </div>
       </div>
 
-      <div className="keyboard_config_screen_body">
-        <div className="keyboard_config_screen_main">
-          <p className="keyboard_config_screen_hint">
-            Type on your keyboard to see which target keys light up.
-          </p>
-          <KeyboardKeys />
-          <button
-            type="button"
-            className="wizard_button"
-            onClick={() => goToTyper(KEYBOARD_CONFIG_SCREEN)}
-          >
-            Try it out
-          </button>
-        </div>
+      <div className="keyboard_config_screen_main">
+        <KeyboardKeys />
+      </div>
 
-        {!isEditingKeymap && (
-          <aside className="keyboard_config_screen_side">
-            <ExportSidePanel />
-          </aside>
-        )}
+      <div className="keyboard_config_screen_actions_row">
+        <button
+          type="button"
+          className="wizard_secondary_button"
+          title="Export layout"
+          onClick={openExportModal}
+        >
+          <FaFileExport aria-hidden />
+          Export layout
+        </button>
+        <button
+          type="button"
+          className="wizard_button"
+          onClick={() => goToTyper(KEYBOARD_CONFIG_SCREEN)}
+        >
+          Try it out
+        </button>
       </div>
 
       <ConfirmDiscardCustomModal
