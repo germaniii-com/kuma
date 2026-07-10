@@ -8,6 +8,7 @@ import {
   TYPER_SUMMARY_SCREEN,
   screenToStep,
 } from '../constants/screen';
+import { SCREEN_STORAGE_KEY } from '../constants/keyboardLayouts';
 import { MOVIE_QUOTES } from '../constants/quotes';
 import { IGNORED_KEYS } from '../constants/keys';
 import {
@@ -15,6 +16,30 @@ import {
   getTargetCharFromPhysicalKey,
 } from '../utils/translatePhysicalKey';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+
+const loadSavedScreen = () => {
+  try {
+    const raw = localStorage.getItem(SCREEN_STORAGE_KEY);
+    if (raw === null) return null;
+    const parsed = Number(raw);
+    return Number.isInteger(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
+const VALID_SCREENS = [
+  DETECT_LAYOUT_SCREEN,
+  KEYBOARD_CONFIG_SCREEN,
+  TYPER_SCREEN,
+  TYPER_SUMMARY_SCREEN,
+];
+
+const resolveSavedScreen = (saved) => {
+  if (saved === null || !VALID_SCREENS.includes(saved)) return null;
+  if (saved === TYPER_SUMMARY_SCREEN) return TYPER_SCREEN;
+  return saved;
+};
 
 const getRandomQuote = () =>
   MOVIE_QUOTES[Math.floor(Math.random() * 10) % MOVIE_QUOTES.length];
@@ -26,7 +51,9 @@ const useKeyboard = ({
   sourceLayout,
   targetLayout,
 }) => {
-  const [screen, setScreen] = useState(DETECT_LAYOUT_SCREEN);
+  const [screen, setScreen] = useState(
+    () => resolveSavedScreen(loadSavedScreen()) ?? DETECT_LAYOUT_SCREEN
+  );
   const [typerReturnScreen, setTyperReturnScreen] = useState(
     KEYBOARD_CONFIG_SCREEN
   );
@@ -214,6 +241,10 @@ const useKeyboard = ({
       setScreen(TYPER_SUMMARY_SCREEN);
     }
   }, [screen, quote.quote, key]);
+
+  useEffect(() => {
+    localStorage.setItem(SCREEN_STORAGE_KEY, String(screen));
+  }, [screen]);
 
   return {
     screen,

@@ -9,6 +9,7 @@ import {
 
 export const CUSTOM_LAYOUT_ID = 'custom';
 export const CUSTOM_KEYMAP_STORAGE_KEY = 'kuma-custom-keymap';
+export const SCREEN_STORAGE_KEY = 'kuma-current-screen';
 
 export const PRESET_KEYBOARD_LAYOUT_OPTIONS = [
   { id: 'qwerty', label: 'QWERTY' },
