@@ -16,38 +16,48 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code Manually
+        run: |
+          git config --global init.defaultBranch main
+          git init
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
-      - uses: docker/setup-buildx-action@v3
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git fetch --depth=1 origin +refs/pull/${{ github.event.pull_request.number }}/merge:refs/remotes/origin/pr
+            git checkout -q origin/pr
+          else
+            git fetch --depth=1 origin ${{ github.sha }}
+            git checkout -q ${{ github.sha }}
+          fi
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        run: |
+          docker buildx create --name custom-builder --driver docker-container --use
+          docker buildx inspect --bootstrap
 
-      - name: Lowercase image name
-        id: meta-image
-        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+      - name: Log in to Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ steps.meta-image.outputs.image }}
-          tags: |
-            type=sha,format=short
-            type=raw,value=latest
-            type=semver,pattern={{version}}
+      - name: Build and Push
+        run: |
+          IMAGE="ghcr.io/${{ github.repository }}"
+          IMAGE="${IMAGE,,}"
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile.prod
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ steps.meta-image.outputs.image }}:cache
-          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:cache,mode=max', steps.meta-image.outputs.image) || '' }}
+          TAGS="-t $IMAGE:${GITHUB_SHA::7} -t $IMAGE:latest"
+
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            TAGS="$TAGS -t $IMAGE:${GITHUB_REF#refs/tags/v}"
+          fi
+
+          PUSH_FLAG=""
+          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            PUSH_FLAG="--push"
+          fi
+
+          docker buildx build \
+            $TAGS \
+            -f Dockerfile.prod \
+            $PUSH_FLAG \
+            --cache-from=type=registry,ref=$IMAGE:cache \
+            --cache-to=type=registry,ref=$IMAGE:cache,mode=max \
+            .
