@@ -15,20 +15,27 @@ const TyperScreen = () => {
 
   return (
     <div className="typer_screen">
-      <p className="typer_screen_hint">
-        Keys are translated from your physical keyboard to the target layout.
-      </p>
       <PhraseDisplay phrase={quote.quote} typed={key} />
       <p className="typer_screen_attribution">- {quote.from}</p>
-      <button
-        type="button"
-        className={`typer_screen_keyboard_toggle${showKeyboardKeys ? ' typer_screen_keyboard_toggle--active' : ''}`}
-        onClick={() => setShowKeyboardKeys((prev) => !prev)}
-        aria-pressed={showKeyboardKeys}
-      >
-        <FaKeyboard aria-hidden />
-        {showKeyboardKeys ? 'Hide keyboard' : 'Show keyboard'}
-      </button>
+      <div className="typer_screen_keyboard_row">
+        <button
+          type="button"
+          className={`typer_screen_keyboard_toggle${showKeyboardKeys ? ' typer_screen_keyboard_toggle--active' : ''}`}
+          onClick={() => setShowKeyboardKeys((prev) => !prev)}
+          aria-pressed={showKeyboardKeys}
+        >
+          <FaKeyboard aria-hidden />
+          {showKeyboardKeys ? 'Hide keyboard' : 'Show keyboard'}
+        </button>
+        <span
+          className="typer_screen_help"
+          data-tip="Keys are translated from your physical keyboard to the target layout."
+          aria-label="Keys are translated from your physical keyboard to the target layout."
+          role="tooltip"
+        >
+          ?
+        </span>
+      </div>
       {showKeyboardKeys && <KeyboardKeys />}
       <div className="typer_screen_back_actions">
         <button

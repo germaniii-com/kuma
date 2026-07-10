@@ -1,13 +1,16 @@
 import './index.css';
 
-const getKeyClassName = (expectedChar, typed, index) =>
-  typed.length === index
-    ? 'cursor'
-    : typed.length <= index
-      ? 'pending'
-      : expectedChar.toLowerCase() === typed[index]?.toLowerCase()
-        ? 'correct'
-        : 'wrong';
+const getKeyClassName = (expectedChar, typed, index) => {
+  if (typed.length === index) return 'cursor';
+  if (typed.length <= index) return 'pending';
+
+  const isCorrect =
+    expectedChar.toLowerCase() === typed[index]?.toLowerCase();
+
+  if (!isCorrect && expectedChar === ' ') return 'wrong wrong-space';
+
+  return isCorrect ? 'correct' : 'wrong';
+};
 
 const PhraseDisplay = ({ phrase, typed }) => (
   <p className="phrase_display">

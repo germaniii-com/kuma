@@ -10,6 +10,12 @@
   color: var(--color-error);
 }
 
+.phrase_display .wrong-space {
+  background-color: var(--color-error);
+  color: var(--color-bg);
+  border-radius: 2px;
+}
+
 .phrase_display .pending {
   color: var(--color-muted);
 }
