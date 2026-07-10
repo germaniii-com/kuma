@@ -1,14 +1,15 @@
 import { useContext, useMemo } from 'react';
 import './index.css';
 import {
+  DETECT_LAYOUT_SCREEN,
   KEYBOARD_CONFIG_SCREEN,
 } from '../../shared/constants/screen';
 import ScreenContext from '../../shared/providers/ScreenContext';
+import { FaCog, FaSearch } from 'react-icons/fa';
 
 const TyperSummaryScreen = () => {
-  const { key, quote, timestamps, typerReturnScreen, goBackFromTyper, goToTyper } =
+  const { key, quote, timestamps, setScreen, goToTyper } =
     useContext(ScreenContext);
-  const canBackToKeyboard = typerReturnScreen === KEYBOARD_CONFIG_SCREEN;
 
   const mistakes = useMemo(() => {
     if (!quote.quote || timestamps.length === 0) return 0;
@@ -60,12 +61,21 @@ const TyperSummaryScreen = () => {
         <button type="button" className="wizard_button" onClick={goToTyper}>
           Try again
         </button>
+      </div>
+      <div className="typer_summary_screen_back_actions">
         <button
           type="button"
           className="wizard_secondary_button"
-          onClick={goBackFromTyper}
+          onClick={() => setScreen(KEYBOARD_CONFIG_SCREEN)}
         >
-          {canBackToKeyboard ? 'Back to keyboard' : 'Back to detect layout'}
+          <FaCog aria-hidden /> Configure
+        </button>
+        <button
+          type="button"
+          className="wizard_secondary_button"
+          onClick={() => setScreen(DETECT_LAYOUT_SCREEN)}
+        >
+          <FaSearch aria-hidden /> Detect Layout
         </button>
       </div>
     </div>

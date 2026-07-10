@@ -2,14 +2,15 @@ import { useContext, useState } from 'react';
 import './index.css';
 import PhraseDisplay from '../../components/PhraseDisplay';
 import KeyboardKeys from '../../components/KeyboardKeys';
-import { KEYBOARD_CONFIG_SCREEN } from '../../shared/constants/screen';
+import {
+  DETECT_LAYOUT_SCREEN,
+  KEYBOARD_CONFIG_SCREEN,
+} from '../../shared/constants/screen';
 import ScreenContext from '../../shared/providers/ScreenContext';
-import { FaKeyboard } from 'react-icons/fa6';
+import { FaCog, FaSearch, FaKeyboard } from 'react-icons/fa';
 
 const TyperScreen = () => {
-  const { key, quote, typerReturnScreen, goBackFromTyper } =
-    useContext(ScreenContext);
-  const canBackToKeyboard = typerReturnScreen === KEYBOARD_CONFIG_SCREEN;
+  const { key, quote, setScreen } = useContext(ScreenContext);
   const [showKeyboardKeys, setShowKeyboardKeys] = useState(true);
 
   return (
@@ -29,13 +30,22 @@ const TyperScreen = () => {
         {showKeyboardKeys ? 'Hide keyboard' : 'Show keyboard'}
       </button>
       {showKeyboardKeys && <KeyboardKeys />}
-      <button
-        type="button"
-        className="wizard_secondary_button"
-        onClick={goBackFromTyper}
-      >
-        {canBackToKeyboard ? 'Back to keyboard' : 'Back to detect layout'}
-      </button>
+      <div className="typer_screen_back_actions">
+        <button
+          type="button"
+          className="wizard_secondary_button"
+          onClick={() => setScreen(KEYBOARD_CONFIG_SCREEN)}
+        >
+          <FaCog aria-hidden /> Configure
+        </button>
+        <button
+          type="button"
+          className="wizard_secondary_button"
+          onClick={() => setScreen(DETECT_LAYOUT_SCREEN)}
+        >
+          <FaSearch aria-hidden /> Detect Layout
+        </button>
+      </div>
     </div>
   );
 };

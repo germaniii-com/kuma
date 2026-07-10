@@ -26,3 +26,16 @@
     color: transparent;
   }
 }
+
+.typer_summary_screen_back_actions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.typer_summary_screen_back_actions .wizard_secondary_button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
