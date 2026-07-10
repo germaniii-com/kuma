@@ -1,133 +1,123 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DEFAULT_PRESET_ID } from '../constants/theme';
-import { getPresetById, THEME_PRESETS } from '../themes/presets';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  applyThemeToDocument,
-  parseThemeFile,
-  vscodeColorsToCssVars,
-} from '../utils/vscodeTheme';
-import {
-  clearCustomTheme,
-  loadCustomTheme,
-  loadThemeSelection,
-  saveCustomTheme,
-  saveThemeSelection,
-} from '../utils/themeStorage';
+  DEFAULT_THEME,
+  THEME_COLORS,
+  THEME_OPTIONS,
+  THEME_STORAGE_KEY,
+  getThemeColors,
+} from '../constants/themes';
 
-const applyColors = (colors, type) => {
-  const cssVars = vscodeColorsToCssVars(colors);
-  applyThemeToDocument(cssVars, type === 'light' ? 'light' : 'dark');
+const hexToRgb = (hex) => {
+  const h = hex.replace('#', '').trim();
+  if (h.length === 3) {
+    return [
+      parseInt(h[0] + h[0], 16),
+      parseInt(h[1] + h[1], 16),
+      parseInt(h[2] + h[2], 16),
+    ];
+  }
+  if (h.length >= 6) {
+    return [
+      parseInt(h.slice(0, 2), 16),
+      parseInt(h.slice(2, 4), 16),
+      parseInt(h.slice(4, 6), 16),
+    ];
+  }
+  return null;
+};
+
+const withAlpha = (color, alpha) => {
+  if (!color) return `rgba(0, 0, 0, ${alpha})`;
+  const rgb = hexToRgb(color);
+  if (rgb) return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+  return color;
+};
+
+const colorsToCssVars = (colors) => ({
+  '--color-bg': colors.background,
+  '--color-fg': colors.text,
+  '--color-surface': colors.surface,
+  '--color-surface-elevated': colors.surfaceSecondary,
+  '--color-border': colors.border,
+  '--color-border-muted': colors.surfaceSecondary,
+  '--color-muted': colors.textMuted,
+  '--color-accent': colors.primary,
+  '--color-accent-muted': withAlpha(colors.primary, 0.25),
+  '--color-success': colors.success,
+  '--color-error': colors.danger,
+  '--color-warning': colors.accent,
+  '--color-overlay': withAlpha(colors.background, 0.75),
+  '--color-input-bg': colors.surfaceSecondary,
+  '--color-primary': colors.primary,
+  '--color-secondary': colors.secondary,
+});
+
+const applyTheme = (themeId) => {
+  const colors = getThemeColors(themeId);
+  const themeOption = THEME_OPTIONS.find((t) => t.value === themeId);
+  const colorScheme = themeOption?.mode === 'light' ? 'light' : 'dark';
+  const cssVars = colorsToCssVars(colors);
+  const root = document.documentElement;
+  Object.entries(cssVars).forEach(([key, value]) => {
+    root.style.setProperty(key, value);
+  });
+  root.style.setProperty('color-scheme', colorScheme);
+};
+
+const loadTheme = () => {
+  try {
+    const raw = localStorage.getItem(THEME_STORAGE_KEY);
+    if (raw && THEME_COLORS[raw]) return raw;
+  } catch {
+    /* ignore */
+  }
+  return DEFAULT_THEME;
+};
+
+const saveTheme = (themeId) => {
+  localStorage.setItem(THEME_STORAGE_KEY, themeId);
 };
 
 const useTheme = () => {
-  const initial = useMemo(() => loadThemeSelection(), []);
-  const initialCustom = useMemo(() => loadCustomTheme(), []);
-  const [presetId, setPresetId] = useState(initial.presetId);
-  const [useCustom, setUseCustom] = useState(
-    () => initial.useCustom && Boolean(initialCustom)
-  );
-  const [customTheme, setCustomTheme] = useState(initialCustom);
-  const [themeError, setThemeError] = useState(null);
-  const fileInputRef = useRef(null);
-
-  const activePreset = getPresetById(presetId);
-
-  const resolveType = useCallback(() => {
-    if (useCustom && customTheme) {
-      return customTheme.type ?? 'dark';
-    }
-    return activePreset.type;
-  }, [useCustom, customTheme, activePreset.type]);
-
-  const applyActiveTheme = useCallback(() => {
-    if (useCustom && customTheme) {
-      applyColors(customTheme.colors, resolveType());
-      return;
-    }
-    applyColors(activePreset.colors, activePreset.type);
-  }, [useCustom, customTheme, activePreset, resolveType]);
+  const [themeId, setThemeId] = useState(() => loadTheme());
 
   useEffect(() => {
-    applyActiveTheme();
-  }, [applyActiveTheme]);
+    applyTheme(themeId);
+  }, [themeId]);
 
   useEffect(() => {
-    saveThemeSelection({ presetId, useCustom });
-  }, [presetId, useCustom]);
+    saveTheme(themeId);
+  }, [themeId]);
 
-  const selectPreset = useCallback((id) => {
-    setPresetId(id);
-    setUseCustom(false);
-    setThemeError(null);
-  }, []);
-
-  const selectCustom = useCallback(() => {
-    if (!customTheme) return;
-    setUseCustom(true);
-    setThemeError(null);
-  }, [customTheme]);
-
-  const uploadThemeFile = useCallback(async (file) => {
-    if (!file) return;
-    try {
-      const theme = await parseThemeFile(file);
-      saveCustomTheme(theme);
-      setCustomTheme(theme);
-      setUseCustom(true);
-      setThemeError(null);
-    } catch (err) {
-      setThemeError(err.message ?? 'Failed to import theme.');
+  const setTheme = useCallback((id) => {
+    if (THEME_COLORS[id]) {
+      setThemeId(id);
     }
   }, []);
 
-  const removeCustomTheme = useCallback(() => {
-    clearCustomTheme();
-    setCustomTheme(null);
-    setUseCustom(false);
-    setThemeError(null);
-  }, []);
-
-  const openThemeFilePicker = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
-
-  const onThemeFileChange = useCallback(
-    (e) => {
-      const file = e.target.files?.[0];
-      if (file) uploadThemeFile(file);
-      e.target.value = '';
-    },
-    [uploadThemeFile]
-  );
-
-  const onSelectChange = useCallback(
-    (e) => {
-      const value = e.target.value;
-      if (value === '__custom__') {
-        selectCustom();
-      } else {
-        selectPreset(value);
-      }
-    },
-    [selectCustom, selectPreset]
+  // Preserve shape for ThemeProvider consumers
+  const presets = useMemo(
+    () =>
+      THEME_OPTIONS.map((opt) => ({
+        id: opt.value,
+        label: opt.label,
+        type: opt.mode,
+      })),
+    []
   );
 
   return {
-    presets: THEME_PRESETS,
-    presetId,
-    useCustom,
-    customTheme,
-    activePreset,
-    themeError,
-    fileInputRef,
-    selectPreset,
-    selectCustom,
-    uploadThemeFile,
-    removeCustomTheme,
-    openThemeFilePicker,
-    onThemeFileChange,
-    onSelectChange,
-    selectValue: useCustom && customTheme ? '__custom__' : presetId,
+    themeId,
+    setTheme,
+    presets,
+    selectValue: themeId,
+    onSelectChange: setTheme,
+    // Stubs for compatibility — no custom import anymore
+    customTheme: null,
+    themeError: null,
+    removeCustomTheme: () => {},
+    openThemeFilePicker: () => {},
+    onThemeFileChange: () => {},
   };
 };
 
