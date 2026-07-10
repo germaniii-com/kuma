@@ -1,6 +1,14 @@
+```
+      ★ ～ KUMA ～ ★
+     ╱ᐠ｡‿｡ᐟ╲
+    │  ᵔ ᵔ  │
+     ╲  ⌄  ╱
+      ╰───╯
+```
+
 # kuma.germaniii.com
 
-Personal website — React 19 + Vite SPA.
+Keyboard Utility and Manager Application
 
 ## Development
 
