@@ -1,12 +1,50 @@
-# React + Vite
+# kuma.germaniii.com
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal website — React 19 + Vite SPA.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```sh
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Or with Docker:
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```sh
+docker compose up
+```
+
+The dev server runs at `http://localhost:5173`.
+
+## Building
+
+```sh
+npm run build     # outputs to dist/
+npm run preview   # preview the production build locally
+```
+
+## Linting & Formatting
+
+```sh
+npm run lint           # ESLint
+npx prettier --check . # Prettier
+```
+
+## Docker
+
+| Image | Dockerfile | Purpose |
+|---|---|---|
+| `kuma.germaniii.com:dev` | `Dockerfile` | Dev server (vite --host) |
+| `kuma.germaniii.com:prod` | `Dockerfile.prod` | Production (nginx serving dist/) |
+
+Build the production image:
+
+```sh
+docker build -f Dockerfile.prod -t kuma.germaniii.com:prod .
+```
+
+## CI/CD
+
+- **`.gitea/workflows/`** — Gitea Actions: build validation, container validation, deploy
+- **`.github/workflows/docker-build.yml`** — GitHub Actions equivalent for `ghcr.io` publishing
