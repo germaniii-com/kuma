@@ -6,14 +6,13 @@ import { useContext } from 'react';
 import ScreenContext from '../../shared/providers/ScreenContext';
 
 const Header = () => {
-  const { currentStep, completedSteps, goToStep } =
-    useContext(ScreenContext);
+  const { currentStep, completedSteps, goToStep } = useContext(ScreenContext);
 
   const { selectValue, onSelectChange } = useThemeContext();
 
   return (
     <div className="header">
-      <span className="header_title">Kuma</span>
+      <span className="header_title">K.U.M.A</span>
 
       <Stepper
         currentStep={currentStep}
