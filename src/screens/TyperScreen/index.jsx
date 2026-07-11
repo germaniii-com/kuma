@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './index.css';
 import PhraseDisplay from '../../components/PhraseDisplay';
 import KeyboardKeys from '../../components/KeyboardKeys';
@@ -11,7 +11,13 @@ import { FaCog, FaSearch, FaKeyboard } from 'react-icons/fa';
 
 const TyperScreen = () => {
   const { key, quote, setScreen } = useContext(ScreenContext);
-  const [showKeyboardKeys, setShowKeyboardKeys] = useState(true);
+  const [showKeyboardKeys, setShowKeyboardKeys] = useState(
+    () => localStorage.getItem('kuma-show-keyboard') !== 'false'
+  );
+
+  useEffect(() => {
+    localStorage.setItem('kuma-show-keyboard', String(showKeyboardKeys));
+  }, [showKeyboardKeys]);
 
   return (
     <div className="typer_screen">

@@ -24,10 +24,18 @@ const TyperSummaryScreen = () => {
       0
     );
 
-    const denominator = Math.max(typedKeys.length, quote.quote.length);
+    const backspaces = timestamps.reduce(
+      (acc, curr) => (curr.key === 'Backspace' ? acc + 1 : acc),
+      0
+    );
+
+    const denominator = Math.max(
+      typedKeys.length + backspaces,
+      quote.quote.length
+    );
 
     return Math.floor(
-      100 - (mistakeCount / denominator) * 100
+      100 - ((mistakeCount + backspaces) / denominator) * 100
     );
   }, [key, quote.quote, timestamps]);
 
@@ -67,11 +75,6 @@ const TyperSummaryScreen = () => {
       <p className="typer_summary_screen_hint blinking">
         Press Enter to try another quote
       </p>
-      <div className="typer_summary_screen_actions">
-        <button type="button" className="wizard_button" onClick={goToTyper}>
-          Try again
-        </button>
-      </div>
       <div className="typer_summary_screen_back_actions">
         <button
           type="button"
