@@ -52,6 +52,30 @@ Build the production image:
 docker build -f Dockerfile.prod -t kuma.germaniii.com:prod .
 ```
 
+### Configuring the port
+
+The production (nginx) image listens on port `80` by default. Set the `PORT`
+environment variable to listen on a different port:
+
+```sh
+docker run -e PORT=8080 -p 8080:8080 kuma.germaniii.com:prod
+```
+
+Or in `docker-compose.yml`:
+
+```yaml
+services:
+  kuma:
+    image: ghcr.io/germaniii-com/kuma:latest
+    environment:
+      - PORT=8080
+    ports:
+      - 8080:8080
+```
+
+Note: `expose` only documents a port for the Docker network; use `ports` to
+publish it to the host. The published port must match `PORT`.
+
 ## CI/CD
 
 - **`.gitea/workflows/`** — Gitea Actions: build validation, container validation, deploy
